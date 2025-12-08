@@ -120,7 +120,7 @@ def main(
             
             # Calculate loss
             # Reshape logits and targets for cross_entropy
-            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=tokenizer.pad_id)
+            loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=tokenizer.pad_id)
             
             # Backward pass and optimization
             optimizer.zero_grad()
