@@ -44,6 +44,8 @@ def main(
 
     # Load tokenizer
     tokenizer = Tokenizer(model_path=tokenizer_path)
+    # Ensure pad_id is set and within vocab size, using eos_id is a safe default
+    tokenizer.pad_id = tokenizer.eos_id
     model_args.vocab_size = tokenizer.n_words
 
     # Set device
