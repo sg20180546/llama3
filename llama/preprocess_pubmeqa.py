@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 import argparse
 
+
+# python3 llama/preprocess_pubmeqa.py --input_dir pubmedqa --output_file pubmedqa/pubmeqa_preprocessed_sj.txt
 def format_entry(entry):
     """Formats a single JSON entry into a question-answer string."""
     question = entry.get("QUESTION", "").strip()

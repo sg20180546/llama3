@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 pubmedqa
+checkpoint_dir/*
 # C extensions
 *.so
 

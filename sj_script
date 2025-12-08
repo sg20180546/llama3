@@ -1,0 +1,15 @@
+git clone https://github.com/pubmedqa/pubmedqa.git
+
+wget https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/1460c22666392e470910ce3d44ffeb2ab7dbd4df/original/tokenizer.model
+
+python3 llama/preprocess_pubmeqa.py --input_dir pubmedqa/data/train_data --output_file pubmedqa/pubmeqa_preprocessed.txt
+
+python3 llama/training.py \
+        --ckpt_dir checkpoint_dir \
+        --tokenizer_path tokenizer.model \
+        --data_path pubmedqa/pubmeqa_preprocessed.txt \
+        --output_dir checkpoint_dir/finetuned_pubmeqa
+
+
+그리고 추론이 완성되었으면, 체크포인팅 된걸 복구해서 추론성능 테스트하는 코드 llama/inference.py 만들어줘. 
+추론 데이터 셋은 json 파일로 pubmedqa/test_set.json꼴로 되어있어

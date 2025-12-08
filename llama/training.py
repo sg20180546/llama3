@@ -72,11 +72,10 @@ def main(
     #     "Training a language model requires a significant amount of data and compute.",
     #     "PyTorch is a popular deep learning framework.",
     # ]│  67 +     # Load the preprocessed training data                                                                                    │
-    print("Loading training data...")                                                                                        │
-    with open(data_path, "r", encoding="utf-8") as f:                                                                        │                                                                      │
-        train_data = f.read().strip().split('\n\n')                                                                          │
-
-    print(f"Loaded {len(train_data)} training entries.")                                                                     │
+    print("Loading training data...")                                                                                        
+    with open(data_path, "r", encoding="utf-8") as f:                                                                                                                                              
+        train_data = f.read().strip().split('\n\n')
+    print(f"Loaded {len(train_data)} training entries.")                                                                     
          
     # ---- 3. Training Loop ----
     model.train() # Set the model to training mode
