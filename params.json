@@ -1,7 +1,7 @@
 {
   "dim": 4096,
-  "n_layers": 16,
-  "n_heads": 16,
+  "n_layers": 8,
+  "n_heads": 8,
   "n_kv_heads": 8,
   "vocab_size": 128256,
   "multiple_of": 1024,
