@@ -19,7 +19,7 @@ def main(
     tokenizer_path: str,
     data_path: str,
     output_dir: str,
-    batch_size: int = 2,
+    batch_size: int = 1,
     epochs: int = 3,
     learning_rate: float = 1e-4,
     log_interval: int = 1,
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     parser.add_argument("--tokenizer_path", type=str, required=True, help="Path to the tokenizer model file")
     parser.add_argument("--data_path", type=str, required=True, help="Path to the preprocessed training data file.")         
     parser.add_argument("--output_dir", type=str, default="checkpoints/finetuned", help="Directory to save the fine-tuned model and optimizer state")
-    parser.add_argument("--batch_size", type=int, default=2, help="Batch size for training")
+    parser.add_argument("--batch_size", type=int, default=1, help="Batch size for training")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
     parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate")
     
