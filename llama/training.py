@@ -54,10 +54,15 @@ def main(
     model = Transformer(model_args).to(device)
     torch.set_default_tensor_type(torch.FloatTensor) # Revert to default
 
-    # Load the checkpoint
-    checkpoint_path = sorted(Path(ckpt_dir).glob("*.pth"))[0]
-    checkpoint = torch.load(checkpoint_path, map_location="cpu")
-    model.load_state_dict(checkpoint, strict=False)
+    # Load the checkpoint if it exists
+    checkpoint_paths = sorted(Path(ckpt_dir).glob("*.pth"))
+    if checkpoint_paths:
+        checkpoint_path = checkpoint_paths[0]
+        print(f"Info: Loading checkpoint from {checkpoint_path} for fine-tuning.")
+        checkpoint = torch.load(checkpoint_path, map_location="cpu")
+        model.load_state_dict(checkpoint, strict=False)
+    else:
+        print("Info: No checkpoint file (.pth) found. Initializing model with random weights for training from scratch.")
 
     print(f"Model and tokenizer loaded in {time.time() - start_time:.2f}s")
 
