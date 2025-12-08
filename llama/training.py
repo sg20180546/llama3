@@ -11,8 +11,8 @@ import torch
 import torch.nn.functional as F
 from torch.optim import AdamW
 
-from llama.model import ModelArgs, Transformer
-from llama.tokenizer import Tokenizer
+from model import ModelArgs, Transformer
+from tokenizer import Tokenizer
 
 def main(
     ckpt_dir: str,
