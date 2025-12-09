@@ -10,6 +10,7 @@ def format_entry(entry):
     question = entry.get("QUESTION", "").strip()
     # The answer is in LONG_ANSWER. CONTEXTS are just for context.
     answer = entry.get("LONG_ANSWER", "").strip()
+    final_decision = entry.get("final_decision", "none").strip()
 
     if not answer:
         # Fallback to contexts if LONG_ANSWER is missing
@@ -17,7 +18,7 @@ def format_entry(entry):
         answer = " ".join(contexts).strip()
 
     if question and answer:
-        return f"Question: {question}\nAnswer: {answer}"
+        return f"Question: {question}\nAnswer: {answer}\nFinal Decision: {final_decision}"
     return None
 
 def process_json_file(file_path):

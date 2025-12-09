@@ -3,12 +3,12 @@ git clone https://github.com/pubmedqa/pubmedqa.git
 wget https://huggingface.co/bofenghuang/Meta-Llama-3-8B/resolve/1460c22666392e470910ce3d44ffeb2ab7dbd4df/original/tokenizer.model
 
 ; python3 llama/preprocess_pubmeqa.py --input_dir pubmedqa/data/train_data --output_file pubmedqa/pubmeqa_preprocessed.txt
-python3 llama/preprocess_pubmeqa.py --input_dir pubmedqa --output_file  pubmedqa/pubmeqa_preprocessed.txt
+python3 llama/preprocess_pubmeqa.py --input_dir pubmedqa/data --output_file  pubmedqa/pubmeqa_preprocessed.txt
 
 python3 llama/training.py \
         --ckpt_dir checkpoint_dir \
         --tokenizer_path tokenizer.model \
-        --data_path pubmedqa/pubmeqa_preprocessed.txt \
+        --data_path pubmedqa/pubmeqa_preprocessed_train.txt \
         --output_dir checkpoint_dir/finetuned_pubmeqa \
         --batch_size 8
 
