@@ -47,27 +47,51 @@ def main():
         print(f"Error: Input directory not found at {input_dir}")
         return
 
-    all_formatted_entries = []
-    
     # Use rglob to find all json files recursively
     json_files = list(input_dir.rglob("*.json"))
     
     if not json_files:
         print(f"Warning: No .json files found in {input_dir}")
+        return
 
-    print(f"Found {len(json_files)} JSON files to process.")
+    train_files = [f for f in json_files if 'train' in f.name]
+    test_files = [f for f in json_files if 'test' in f.name]
 
-    for file_path in json_files:
-        print(f"Processing {file_path}...")
-        all_formatted_entries.extend(process_json_file(file_path))
+    print(f"Found {len(json_files)} total JSON files.")
+    print(f"Found {len(train_files)} training files.")
+    print(f"Found {len(test_files)} test files.")
 
-    with open(output_file, 'w', encoding='utf-8') as f:
-        for entry in all_formatted_entries:
-            f.write(entry + "\n\n") # Add two newlines for separation
+    # Process training files
+    train_entries = []
+    print("\nProcessing training files...")
+    for file_path in train_files:
+        print(f"  - {file_path.name}")
+        train_entries.extend(process_json_file(file_path))
+    
+    # Process test files
+    test_entries = []
+    print("\nProcessing test files...")
+    for file_path in test_files:
+        print(f"  - {file_path.name}")
+        test_entries.extend(process_json_file(file_path))
+
+    # Derive output file paths
+    output_train_file = output_file.with_suffix('').as_posix() + "_train.txt"
+    output_test_file = output_file.with_suffix('').as_posix() + "_test.txt"
+
+    # Write training data
+    with open(output_train_file, 'w', encoding='utf-8') as f:
+        for entry in train_entries:
+            f.write(entry + "\n\n")
+
+    # Write test data
+    with open(output_test_file, 'w', encoding='utf-8') as f:
+        for entry in test_entries:
+            f.write(entry + "\n\n")
 
     print(f"\nPreprocessing complete.")
-    print(f"Processed {len(all_formatted_entries)} entries.")
-    print(f"Output saved to {output_file}")
+    print(f"Processed {len(train_entries)} training entries, saved to {output_train_file}")
+    print(f"Processed {len(test_entries)} test entries, saved to {output_test_file}")
 
 if __name__ == "__main__":
     main()
