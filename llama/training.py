@@ -115,7 +115,7 @@ def main(
             
             # Pad and create tensors
             padded_tokens = [t + [tokenizer.pad_id] * (max_len - len(t)) for t in batch_tokens]
-            tokens = torch.tensor(padded_tokens, dtype=torch.float16).to(accelerator.device)
+            tokens = torch.tensor(padded_tokens, dtype=torch.int).to(accelerator.device)
             
             # Prepare inputs and targets
             # The model should predict the next token, so targets are shifted inputs
