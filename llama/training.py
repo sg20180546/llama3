@@ -10,6 +10,7 @@ from typing import Optional
 import torch
 import torch.nn.functional as F
 from torch.optim import AdamW
+from accelerate import Accelerator
 
 from model import ModelArgs, Transformer
 from tokenizer import Tokenizer
@@ -30,6 +31,9 @@ def main(
     # ---- 1. Load Model and Tokenizer ----
     start_time = time.time()
     
+    # Initialize accelerator
+    accelerator = Accelerator(cpu_offload=True)
+
     # Ensure the checkpoint directory exists
     if not os.path.isdir(ckpt_dir):
         print(f"Checkpoint directory {ckpt_dir} not found.")
@@ -47,12 +51,9 @@ def main(
     # Ensure pad_id is set and within vocab size, using eos_id is a safe default
     tokenizer.pad_id = tokenizer.eos_id
     model_args.vocab_size = tokenizer.n_words
-
-    # Set device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # Instantiate the model
-    model = Transformer(model_args).to(device)
+    model = Transformer(model_args)
 
     # Load the checkpoint if it exists
     checkpoint_paths = sorted(Path(ckpt_dir).glob("*.pth"))
@@ -81,6 +82,14 @@ def main(
     with open(data_path, "r", encoding="utf-8") as f:                                                                                                                                              
         train_data = f.read().strip().split('\n\n')
     print(f"Loaded {len(train_data)} training entries.")                                                                     
+    
+    # Prepare model, optimizer, and a dummy dataloader for accelerator
+    # We create a dummy dataloader since the script does manual batching.
+    # The important part is to prepare the model and optimizer.
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size)
+    model, optimizer, train_dataloader = accelerator.prepare(
+        model, optimizer, train_dataloader
+    )
          
     # ---- 3. Training Loop ----
     model.train() # Set the model to training mode
@@ -106,7 +115,7 @@ def main(
             
             # Pad and create tensors
             padded_tokens = [t + [tokenizer.pad_id] * (max_len - len(t)) for t in batch_tokens]
-            tokens = torch.tensor(padded_tokens, dtype=torch.long, device=device)
+            tokens = torch.tensor(padded_tokens, dtype=torch.long)
             
             # Prepare inputs and targets
             # The model should predict the next token, so targets are shifted inputs
@@ -118,11 +127,11 @@ def main(
             
             # Calculate loss
             # Reshape logits and targets for cross_entropy
-            loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=tokenizer.pad_id)
+            loss = F.cross_entropy(logits.reshape(-1, logits.size(--1)), targets.reshape(-1), ignore_index=tokenizer.pad_id)
             
             # Backward pass and optimization
             optimizer.zero_grad()
-            loss.backward()
+            accelerator.backward(loss)
             # Clip gradients to prevent explosion
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
@@ -142,8 +151,10 @@ def main(
     model_save_path = os.path.join(output_dir, "llama3_finetuned_model.pth")
     optimizer_save_path = os.path.join(output_dir, "llama3_finetuned_optimizer.pth")
     
+    # Unwrap the model before saving
+    unwrapped_model = accelerator.unwrap_model(model)
     # Save model state dictionary
-    torch.save(model.state_dict(), model_save_path)
+    torch.save(unwrapped_model.state_dict(), model_save_path)
     print(f"Model parameters saved to {model_save_path}")
 
     # Save optimizer state dictionary
@@ -161,6 +172,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size for training")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
     parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate")
+    parser.add_argument("--log_interval", type=int, default=1, help="Interval for logging training loss")
     
     args = parser.parse_args()
     main(
@@ -171,4 +183,5 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         epochs=args.epochs,
         learning_rate=args.learning_rate,
+        log_interval=args.log_interval,
     )
