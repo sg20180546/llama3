@@ -9,7 +9,7 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from torch.optim import AdamW
+from bitsandbytes.optim import AdamW8bit as AdamW
 from accelerate import Accelerator
 
 from model import ModelArgs, Transformer
