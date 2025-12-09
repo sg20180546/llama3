@@ -14,7 +14,7 @@ from torch.optim import AdamW
 from bitsandbytes.optim import AdamW8bit
 
 from accelerate import Accelerator
-from accelerate import utils.DummyOptim
+from accelerate.utils import DummyOptim
 from model import ModelArgs, Transformer
 from tokenizer import Tokenizer
 
@@ -73,7 +73,7 @@ def main(
 
     # ---- 2. Prepare Optimizer and Data ----
     # optimizer = AdamW8bit(model.parameters(), lr=learning_rate)
-    optimizer =utils.DummyOptim
+    optimizer =DummyOptim()
     # Dummy data for demonstration
     # Replace this with your actual data loading logic
     # train_data = [
