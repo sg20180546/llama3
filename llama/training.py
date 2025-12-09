@@ -32,7 +32,7 @@ def main(
     start_time = time.time()
     
     # Initialize accelerator
-    accelerator = Accelerator(cpu_offload=True)
+    accelerator = Accelerator()
 
     # Ensure the checkpoint directory exists
     if not os.path.isdir(ckpt_dir):
