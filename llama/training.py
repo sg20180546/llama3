@@ -9,7 +9,7 @@ from typing import Optional
 
 import torch
 import torch.nn.functional as F
-from bitsandbytes.optim import AdamW8bit as AdamW
+from bitsandbytes.optim import AdamW8bit
 from accelerate import Accelerator
 
 from model import ModelArgs, Transformer
@@ -69,7 +69,7 @@ def main(
     print(f"Model and tokenizer loaded in {time.time() - start_time:.2f}s")
 
     # ---- 2. Prepare Optimizer and Data ----
-    optimizer = AdamW(model.parameters(), lr=learning_rate)
+    optimizer = AdamW8bit(model.parameters(), lr=learning_rate)
 
     # Dummy data for demonstration
     # Replace this with your actual data loading logic
