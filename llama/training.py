@@ -97,9 +97,9 @@ def main(
             batch_tokens = [tokenizer.encode(text, bos=True, eos=True) for text in batch_texts]
             
             # Truncate sequences that are longer than max_seq_len
-            for i in range(len(batch_tokens)):
-                if len(batch_tokens[i]) > model_args.max_seq_len:
-                    batch_tokens[i] = batch_tokens[i][:model_args.max_seq_len]
+            for j in range(len(batch_tokens)):
+                if len(batch_tokens[j]) > model_args.max_seq_len:
+                    batch_tokens[j] = batch_tokens[j][:model_args.max_seq_len]
 
             # Find the max length in the batch for padding
             max_len = max(len(t) for t in batch_tokens)
