@@ -6,3 +6,4 @@ blobfile
 accelerate
 bitsandbytes
 deepspeed
+transformers

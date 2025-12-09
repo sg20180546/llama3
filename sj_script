@@ -33,6 +33,6 @@ accelerate launch --use_deepspeed --deepspeed_config_file deepspeed_config.json 
         --batch_size 1 \
         --gradient_accumulation_steps 8
 
-        
+
 그리고 추론이 완성되었으면, 체크포인팅 된걸 복구해서 추론성능 테스트하는 코드 llama/inference.py 만들어줘. 
 추론 데이터 셋은 json 파일로 pubmedqa/test_set.json꼴로 되어있어
