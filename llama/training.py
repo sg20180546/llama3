@@ -7,9 +7,8 @@ import time
 from pathlib import Path
 from typing import Optional
 
-import torch
 import torch.nn.functional as F
-from bitsandbytes.optim import AdamW8bit
+from torch.optim import AdamW
 from accelerate import Accelerator
 
 from model import ModelArgs, Transformer
