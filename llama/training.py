@@ -24,6 +24,7 @@ def main(
     epochs: int = 3,
     learning_rate: float = 1e-4,
     log_interval: int = 1,
+    gradient_accumulation_steps: int = 1,
 ):
     """
     A simple training script for the Llama3 model.
@@ -32,7 +33,7 @@ def main(
     start_time = time.time()
     
     # Initialize accelerator
-    accelerator = Accelerator()
+    accelerator = Accelerator(mixed_precision='fp16', gradient_accumulation_steps=gradient_accumulation_steps)
 
     # Ensure the checkpoint directory exists
     if not os.path.isdir(ckpt_dir):
@@ -122,19 +123,22 @@ def main(
             inputs = tokens[:, :-1]
             targets = tokens[:, 1:]
             
-            # Forward pass
-            logits = model(inputs, start_pos=0)
-            
-            # Calculate loss
-            # Reshape logits and targets for cross_entropy
-            loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=tokenizer.pad_id)
-            
-            # Backward pass and optimization
-            optimizer.zero_grad()
-            accelerator.backward(loss)
-            # Clip gradients to prevent explosion
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-            optimizer.step()
+            with accelerator.accumulate(model):
+                # Forward pass
+                logits = model(inputs, start_pos=0)
+                
+                # Calculate loss
+                # Reshape logits and targets for cross_entropy
+                loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=tokenizer.pad_id)
+                
+                # Backward pass and optimization
+                accelerator.backward(loss)
+
+                # Clip gradients to prevent explosion
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+                optimizer.step()
+                optimizer.zero_grad()
             
             total_loss += loss.item()
 
@@ -173,6 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
     parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate")
     parser.add_argument("--log_interval", type=int, default=1, help="Interval for logging training loss")
+    parser.add_argument("--gradient_accumulation_steps", type=int, default=1, help="Number of steps to accumulate gradients over")
     
     args = parser.parse_args()
     main(
@@ -184,4 +189,5 @@ if __name__ == "__main__":
         epochs=args.epochs,
         learning_rate=args.learning_rate,
         log_interval=args.log_interval,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
     )
