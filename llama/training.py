@@ -10,13 +10,8 @@ from typing import Optional
 
 import torch.nn.functional as F
 from torch.optim import AdamW
-# from torch.optim import AdamW
-from bitsandbytes.optim import AdamW8bit
-
 from accelerate import Accelerator
-from accelerate.utils import DummyOptim
-from model import ModelArgs, Transformer
-from tokenizer import Tokenizer
+from accelerate.utils import DDPKwargs
 
 def main(
     ckpt_dir: str,
@@ -35,8 +30,9 @@ def main(
     # ---- 1. Load Model and Tokenizer ----
     start_time = time.time()
     
-    # Initialize accelerator
-    accelerator = Accelerator(mixed_precision='fp16', gradient_accumulation_steps=gradient_accumulation_steps)
+    # Initialize accelerator with find_unused_parameters=True for DeepSpeed compatibility
+    ddp_kwargs = DDPKwargs(find_unused_parameters=True)
+    accelerator = Accelerator(gradient_accumulation_steps=gradient_accumulation_steps, kwargs_handlers=[ddp_kwargs])
 
     # Ensure the checkpoint directory exists
     if not os.path.isdir(ckpt_dir):
