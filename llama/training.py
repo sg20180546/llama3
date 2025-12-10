@@ -72,7 +72,9 @@ def main(
     print(f"Model and tokenizer loaded in {time.time() - start_time:.2f}s")
 
     # ---- 2. Prepare Optimizer and Data ----
-    optimizer = AdamW8bit(model.parameters(), lr=learning_rate)
+    # optimizer = AdamW8bit(model.parameters(), lr=learning_rate)
+    optimizer = AdamW(model.parameters(), lr=learning_rate)
+
     # optimizer =DummyOptim()
     # Dummy data for demonstration
     # Replace this with your actual data loading logic
