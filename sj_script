@@ -25,7 +25,7 @@ accelerate launch --mixed_precision=fp16 llama/training.py \
         --batch_size 1 \
         --gradient_accumulation_steps 8
 
-accelerate launch --use_deepspeed --deepspeed_config_file deepspeed_config.json llama/training.py \
+DS_BUILD_CPU_ADAM=0 accelerate launch --use_deepspeed --deepspeed_config_file deepspeed_config.json llama/training.py \
         --ckpt_dir Meta-Llama-3-8B-Instruct \
         --tokenizer_path Meta-Llama-3-8B-Instruct/tokenizer.model \
         --data_path pubmedqa/pubmeqa_preprocessed_train.txt \
