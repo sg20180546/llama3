@@ -37,7 +37,7 @@ def main(
     start_time = time.time()
     
     # Initialize accelerator
-    accelerator = Accelerator(mixed_precision='fp16', gradient_accumulation_steps=gradient_accumulation_steps)
+    accelerator = Accelerator(mixed_precision='fp16')
 
     # Ensure the checkpoint directory exists
     if not os.path.isdir(ckpt_dir):
