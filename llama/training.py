@@ -136,6 +136,12 @@ def main(
             # Calculate loss
             # Reshape logits and targets for cross_entropy
             loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
+            
+            
+            # logits original: torch.Size([1, 50, 128256])
+            # logits view: torch.Size([50, 128256])
+            # targets original: torch.Size([1, 50])
+            # targets view: torch.Size([50])
             print("logits original:", logits.shape)
             print("logits view:", logits.view(-1, logits.size(-1)).shape)
 
