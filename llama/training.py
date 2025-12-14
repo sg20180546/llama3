@@ -94,7 +94,7 @@ def main(
     # Prepare model, optimizer, and a dummy dataloader for accelerator
     # We create a dummy dataloader since the script does manual batching.
     # The important part is to prepare the model and optimizer.
-    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size)
+    train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,shuffle=True)
     model, optimizer, train_dataloader = accelerator.prepare(
         model, optimizer, train_dataloader
     )
@@ -130,16 +130,17 @@ def main(
             # The model should predict the next token, so targets are shifted inputs
             inputs = tokens[:, :-1]
             targets = tokens[:, 1:]
-            inputs = inputs.to(accelerator.device)
-            targets = targets.to(accelerator.device)
+            # inputs = inputs.to(accelerator.device)
+            # targets = targets.to(accelerator.device)
             # Forward pass
             logits = model(inputs, start_pos=0)
             
             # Calculate loss
             # Reshape logits and targets for cross_entropy
             loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
-            
-            
+            # model_args.max_seq_len:  2048
+            # max_len:  84
+            # tokenizer.pad_id:  128001
             # logits original: torch.Size([1, 50, 128256])
             # logits view: torch.Size([50, 128256])
             # targets original: torch.Size([1, 50])
