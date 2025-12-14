@@ -154,7 +154,8 @@ def main(
             print("targets original:", targets.shape)
             print("targets view:", targets.view(-1).shape)
 
-            
+            print("loss:", loss)
+
             accelerator.backward(loss)
 
             # Clip gradients to prevent explosion
