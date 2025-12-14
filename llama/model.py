@@ -125,8 +125,8 @@ class Attention(nn.Module):
             self.wv = nn.Linear(args.dim, self.n_kv_heads * self.head_dim, bias=False)
             self.wo = nn.Linear(args.n_heads * self.head_dim, args.dim, bias=False)
 
-        self.cache_k = torch.zeros((args.max_batch_size, args.max_seq_len, self.n_local_kv_heads, self.head_dim))
-        self.cache_v = torch.zeros((args.max_batch_size, args.max_seq_len, self.n_local_kv_heads, self.head_dim))
+        # self.cache_k = torch.zeros((args.max_batch_size, args.max_seq_len, self.n_local_kv_heads, self.head_dim))
+        # self.cache_v = torch.zeros((args.max_batch_size, args.max_seq_len, self.n_local_kv_heads, self.head_dim))
 
     def forward(
         self,
