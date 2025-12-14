@@ -134,7 +134,13 @@ def main(
                 
                 # Calculate loss
                 # Reshape logits and targets for cross_entropy
+                print(targets.view(-1))
+                print(logits.view(-1, logits.size(-1)))
+                print(tokenizer.pad_id)
+
+
                 loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=tokenizer.pad_id)
+                print(loss)
                 accelerator.backward(loss)
 
                 # Clip gradients to prevent explosion
