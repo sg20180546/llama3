@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 import torch.nn.functional as F
+import torch.nn as nn
 from torch.optim import AdamW
 # from torch.optim import AdamW
 from bitsandbytes.optim import AdamW8bit
@@ -58,6 +59,7 @@ def main(
     
     # Instantiate the model
     model = Transformer(model_args)
+    criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_id)
 
     # Load the checkpoint if it exists
     checkpoint_paths = sorted(Path(ckpt_dir).glob("*.pth"))
@@ -134,13 +136,7 @@ def main(
                 
                 # Calculate loss
                 # Reshape logits and targets for cross_entropy
-                print(targets.view(-1))
-                print(logits.view(-1, logits.size(-1)))
-                print(tokenizer.pad_id)
-
-
-                loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=tokenizer.pad_id)
-                print(loss)
+                loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
                 accelerator.backward(loss)
 
                 # Clip gradients to prevent explosion
