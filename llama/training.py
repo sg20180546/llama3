@@ -144,6 +144,9 @@ def main(
             # logits view: torch.Size([50, 128256])
             # targets original: torch.Size([1, 50])
             # targets view: torch.Size([50])
+            print("model_args.max_seq_len: ", model_args.max_seq_len)
+            print("max_len: ",max_len)
+            print("tokenizer.pad_id: ",tokenizer.pad_id)
             print("logits original:", logits.shape)
             print("logits view:", logits.view(-1, logits.size(-1)).shape)
 
