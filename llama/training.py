@@ -136,6 +136,13 @@ def main(
             # Calculate loss
             # Reshape logits and targets for cross_entropy
             loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
+            print("logits original:", logits.shape)
+            print("logits view:", logits.view(-1, logits.size(-1)).shape)
+
+            print("targets original:", targets.shape)
+            print("targets view:", targets.view(-1).shape)
+
+            
             accelerator.backward(loss)
 
             # Clip gradients to prevent explosion
