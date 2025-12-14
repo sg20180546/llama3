@@ -130,20 +130,19 @@ def main(
             inputs = tokens[:, :-1]
             targets = tokens[:, 1:]
             
-            with accelerator.accumulate(model):
-                # Forward pass
-                logits = model(inputs, start_pos=0)
-                
-                # Calculate loss
-                # Reshape logits and targets for cross_entropy
-                loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
-                accelerator.backward(loss)
+            # Forward pass
+            logits = model(inputs, start_pos=0)
+            
+            # Calculate loss
+            # Reshape logits and targets for cross_entropy
+            loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
+            accelerator.backward(loss)
 
-                # Clip gradients to prevent explosion
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            # Clip gradients to prevent explosion
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
-                optimizer.step()
-                optimizer.zero_grad()
+            optimizer.step()
+            optimizer.zero_grad()
             
             total_loss += loss.item()
 
