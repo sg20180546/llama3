@@ -10,8 +10,13 @@ from typing import Optional
 
 import torch.nn.functional as F
 from torch.optim import AdamW
+# from torch.optim import AdamW
+from bitsandbytes.optim import AdamW8bit
+
 from accelerate import Accelerator
-from accelerate.utils import DDPKwargs
+from accelerate.utils import DummyOptim
+from model import ModelArgs, Transformer
+from tokenizer import Tokenizer
 
 def main(
     ckpt_dir: str,
@@ -30,9 +35,8 @@ def main(
     # ---- 1. Load Model and Tokenizer ----
     start_time = time.time()
     
-    # Initialize accelerator with find_unused_parameters=True for DeepSpeed compatibility
-    ddp_kwargs = DDPKwargs(find_unused_parameters=True)
-    accelerator = Accelerator(gradient_accumulation_steps=gradient_accumulation_steps, kwargs_handlers=[ddp_kwargs])
+    # Initialize accelerator
+    accelerator = Accelerator(mixed_precision='fp16', gradient_accumulation_steps=gradient_accumulation_steps)
 
     # Ensure the checkpoint directory exists
     if not os.path.isdir(ckpt_dir):
@@ -130,8 +134,15 @@ def main(
                 
                 # Calculate loss
                 # Reshape logits and targets for cross_entropy
-                loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=tokenizer.pad_id)
-                
+                # loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), targets.reshape(-1), ignore_index=tokenizer.pad_id)
+                shift_logits = logits[:, :-1, :].contiguous()
+                shift_targets = targets[:, 1:].contiguous()
+
+                loss = F.cross_entropy(
+                    shift_logits.view(-1, shift_logits.size(-1)),
+                    shift_targets.view(-1),
+                    ignore_index=tokenizer.pad_token_id
+                )
                 # Backward pass and optimization
                 accelerator.backward(loss)
 
