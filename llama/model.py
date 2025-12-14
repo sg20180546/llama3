@@ -251,7 +251,9 @@ class Transformer(nn.Module):
             self.tok_embeddings = VocabParallelEmbedding(params.vocab_size, params.dim, init_method=lambda x: x)
             self.output = ColumnParallelLinear(params.dim, params.vocab_size, bias=False, init_method=lambda x: x)
         else:
-            print("!!!!!!!!!!!!!!!!!!!use_parallel")
+            print("!!!!!!!!!!!!!!!!!!!use_parallel") #here
+            print(params.vocab_size)
+            print(params.dim)
             self.tok_embeddings = nn.Embedding(params.vocab_size, params.dim)
             self.output = nn.Linear(params.dim, params.vocab_size, bias=False)
 
