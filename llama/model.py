@@ -176,6 +176,9 @@ class Attention(nn.Module):
         scores = F.softmax(scores.float(), dim=-1).type_as(xq)
         output = torch.matmul(scores, values)
         output = output.transpose(1, 2).contiguous().view(bsz, seqlen, -1)
+        print("Attention xq.shape ",xq.shape," keys.shape " ,
+              keys.shape," value.shape ",values.shape,
+              " scores.shape ",scores.shape," output.shape ",output.shape)
         return self.wo(output)
 
 
@@ -205,7 +208,10 @@ class FeedForward(nn.Module):
             self.w3 = nn.Linear(dim, hidden_dim, bias=False)
 
     def forward(self, x):
-        return self.w2(F.silu(self.w1(x)) * self.w3(x))
+
+        ret=  self.w2(F.silu(self.w1(x)) * self.w3(x))
+        print("FeedForward ret.shape ",ret.shape)
+        return ret
 
 
 class TransformerBlock(nn.Module):
@@ -231,9 +237,10 @@ class TransformerBlock(nn.Module):
         start_pos: int,
         freqs_cis: torch.Tensor,
         mask: Optional[torch.Tensor],
-    ):
+    ):  
         h = x + self.attention(self.attention_norm(x), start_pos, freqs_cis, mask)
         out = h + self.feed_forward(self.ffn_norm(h))
+        print("TransformerBlock h.shape", h.shape, " out.shape" ,out.shape)
         return out
 
 
@@ -274,6 +281,11 @@ class Transformer(nn.Module):
         h = self.tok_embeddings(tokens)
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
+        # token.shape  torch.Size([1, 50])
+        # mask.shape  torch.Size([50, 50])
+        # h.shape  torch.Size([1, 50, 4096])
+        # output.shape  torch.Size([1, 50, 128256])
+
         print("token.shape ", tokens.shape)
         mask = None
         if seqlen > 1:
