@@ -4,7 +4,7 @@
   },
   "zero_optimization": {
     "stage": 2,
-    "ignore_unused_parameters": true,
+    "ignore_unused_parameters": false,
     "offload_optimizer": {
       "device": "cpu",
       "pin_memory": true
@@ -13,6 +13,6 @@
     "overlap_comm": true
   },
   "train_micro_batch_size_per_gpu": 1,
-  "gradient_accumulation_steps": 8,
+  "gradient_accumulation_steps": 1,
   "gradient_clipping": 1.0
 }

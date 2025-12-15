@@ -31,7 +31,7 @@ DS_BUILD_CPU_ADAM=0 accelerate launch --use_deepspeed --deepspeed_config_file de
         --data_path pubmedqa/pubmeqa_preprocessed_train.txt \
         --output_dir checkpoint_dir/finetuned_pubmeqa \
         --batch_size 1 \
-        --gradient_accumulation_steps 8
+        --gradient_accumulation_steps 1
 
 
 accelerate launch --config_file ./accelerate_config.yaml llama/training.py \

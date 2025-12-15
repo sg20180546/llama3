@@ -287,6 +287,8 @@ class Transformer(nn.Module):
         h = self.tok_embeddings(tokens)
         self.freqs_cis = self.freqs_cis.to(h.device)
         freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
+        # seqlen  50
+        # start_pos  0
         # token.shape  torch.Size([1, 50])
         # mask.shape  torch.Size([50, 50])
         # h.shape  torch.Size([1, 50, 4096])
