@@ -293,8 +293,8 @@ class Transformer(nn.Module):
         # mask.shape  torch.Size([50, 50])
         # h.shape  torch.Size([1, 50, 4096])
         # output.shape  torch.Size([1, 50, 128256])
-        print("seqlen ",seqlen)
-        print("start_pos ",start_pos)
+        print_sungjin("seqlen ",seqlen)
+        print_sungjin("start_pos ",start_pos)
         print_sungjin("token.shape ", tokens.shape)
         mask = None
         if seqlen > 1:
