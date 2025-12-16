@@ -57,7 +57,13 @@ accelerate launch /home/elicer/llama3/llama/training.py \
         --batch_size 1 \
         --epochs 3 \
         --learning_rate 1e-5
-
+accelerate launch llama/training.py \
+            --ckpt_dir Meta-Llama-3-8B-Instruct \
+            --tokenizer_path Meta-Llama-3-8B-Instruct/tokenizer.model \
+            --data_path pubmedqa/pubmeqa_preprocessed_train.txt \
+            --output_dir checkpoint_dir/finetuned_pubmeqa \
+            --batch_size 1 \
+            --gradient_accumulation_steps 1
 
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
 

@@ -10,12 +10,9 @@ from typing import Optional
 
 import torch.nn.functional as F
 import torch.nn as nn
-from torch.optim import AdamW
-# from torch.optim import AdamW
 from bitsandbytes.optim import AdamW8bit
 
 from accelerate import Accelerator
-from accelerate.utils import DummyOptim
 from model import ModelArgs, Transformer
 from tokenizer import Tokenizer
 
@@ -36,9 +33,8 @@ def main(
     # ---- 1. Load Model and Tokenizer ----
     start_time = time.time()
     
-    # Initialize accelerator
-    # accelerator = Accelerator(mixed_precision='fp16')
-    accelerator = Accelerator()
+    # Initialize accelerator with bf16 mixed precision
+    accelerator = Accelerator(mixed_precision='bf16')
 
     # Ensure the checkpoint directory exists
     if not os.path.isdir(ckpt_dir):
@@ -60,8 +56,6 @@ def main(
     
     # Instantiate the model
     model = Transformer(model_args)
-    # criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_id)
-    # criterion = nn.CrossEntropyLoss()
     # Load the checkpoint if it exists
     checkpoint_paths = sorted(Path(ckpt_dir).glob("*.pth"))
     if checkpoint_paths:
@@ -75,26 +69,14 @@ def main(
     print(f"Model and tokenizer loaded in {time.time() - start_time:.2f}s")
 
     # ---- 2. Prepare Optimizer and Data ----
-    # optimizer = AdamW8bit(model.parameters(), lr=learning_rate)
-    optimizer = DummyOptim(model.parameters(), lr=learning_rate)
+    optimizer = AdamW8bit(model.parameters(), lr=learning_rate)
 
-    # optimizer =DummyOptim()
-    # Dummy data for demonstration
-    # Replace this with your actual data loading logic
-    # train_data = [
-    #     "The quick brown fox jumps over the lazy dog.",
-    #     "Llama models are a family of large language models.",
-    #     "Training a language model requires a significant amount of data and compute.",
-    #     "PyTorch is a popular deep learning framework.",
-    # ]│  67 +     # Load the preprocessed training data                                                                                    │
     print("Loading training data...")                                                                                        
     with open(data_path, "r", encoding="utf-8") as f:                                                                                                                                              
         train_data = f.read().strip().split('\n\n')
     print(f"Loaded {len(train_data)} training entries.")                                                                     
     
     # Prepare model, optimizer, and a dummy dataloader for accelerator
-    # We create a dummy dataloader since the script does manual batching.
-    # The important part is to prepare the model and optimizer.
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size,shuffle=True)
     model, optimizer, train_dataloader = accelerator.prepare(
         model, optimizer, train_dataloader
@@ -124,51 +106,24 @@ def main(
             
             # Pad and create tensors
             padded_tokens = [t + [tokenizer.pad_id] * (max_len - len(t)) for t in batch_tokens]
-            tokens = torch.tensor(padded_tokens, dtype=torch.long).to(accelerator.device)
-            # tokens = torch.tensor(padded_tokens, dtype=torch.long)
+            tokens = torch.tensor(padded_tokens, dtype=torch.long)
             
             # Prepare inputs and targets
             # The model should predict the next token, so targets are shifted inputs
             inputs = tokens[:, :-1]
             targets = tokens[:, 1:]
-            # inputs = inputs.to(accelerator.device)
-            # targets = targets.to(accelerator.device)
-            # Forward pass
-            logits = model(inputs, start_pos=0)
-            
-            # Calculate loss
-            # Reshape logits and targets for cross_entropy
-            # loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
-            # loss=F.cross
-            loss=F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
-            
-            # model_args.max_seq_len:  2048
-            # max_len:  84
-            # tokenizer.pad_id:  128001
-            # logits original: torch.Size([1, 50, 128256])
-            # logits view: torch.Size([50, 128256])
-            # targets original: torch.Size([1, 50])
-            # targets view: torch.Size([50])
-            print("model_args.max_seq_len: ", model_args.max_seq_len)
-            print("max_len: ",max_len)
-            print("tokenizer.pad_id: ",tokenizer.pad_id)
-            print("logits original:", logits.shape)
-            print("logits view:", logits.view(-1, logits.size(-1)).shape)
 
-            print("targets original:", targets.shape)
-            print("targets view:", targets.view(-1).shape)
+            with accelerator.accumulate(model):
+                # Forward pass
+                logits = model(inputs, start_pos=0)
+                
+                # Calculate loss
+                loss=F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
+                
+                accelerator.backward(loss)
 
-            print("loss:", loss)
-
-            # accelerator.backward(loss,learning_rate=learning_rate)
-            accelerator.backward(loss)
-            # loss.backward()
-
-            # Clip gradients to prevent explosion
-            # torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-
-            optimizer.step()
-            optimizer.zero_grad()
+                optimizer.step()
+                optimizer.zero_grad()
             
             total_loss += loss.item()
 
@@ -194,30 +149,3 @@ def main(
     # Save optimizer state dictionary
     torch.save(optimizer.state_dict(), optimizer_save_path)
     print(f"Optimizer state saved to {optimizer_save_path}")
-
-
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Simple Llama3 Training Script")
-    parser.add_argument("--ckpt_dir", type=str, required=True, help="Directory containing the model checkpoint and params.json")
-    parser.add_argument("--tokenizer_path", type=str, required=True, help="Path to the tokenizer model file")
-    parser.add_argument("--data_path", type=str, required=True, help="Path to the preprocessed training data file.")         
-    parser.add_argument("--output_dir", type=str, default="checkpoints/finetuned", help="Directory to save the fine-tuned model and optimizer state")
-    parser.add_argument("--batch_size", type=int, default=1, help="Batch size for training")
-    parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
-    parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate")
-    parser.add_argument("--log_interval", type=int, default=1, help="Interval for logging training loss")
-    parser.add_argument("--gradient_accumulation_steps", type=int, default=1, help="Number of steps to accumulate gradients over")
-    
-    args = parser.parse_args()
-    main(
-        ckpt_dir=args.ckpt_dir,
-        tokenizer_path=args.tokenizer_path,
-        output_dir=args.output_dir,
-        data_path=args.data_path,
-        batch_size=args.batch_size,
-        epochs=args.epochs,
-        learning_rate=args.learning_rate,
-        log_interval=args.log_interval,
-        gradient_accumulation_steps=args.gradient_accumulation_steps,
-    )
