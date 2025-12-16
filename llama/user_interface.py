@@ -8,7 +8,8 @@ import fire
 
 from llama import Dialog, Llama
 
-# torchrun --nproc_per_node 1 llama/user_interface.py
+
+# accelerate launch --num_processes=1 llama/user_interface.py
 def main(
     ckpt_dir: str = "Meta-Llama-3-8B-Instruct/",
     tokenizer_path: str = "Meta-Llama-3-8B-Instruct/tokenizer.model",
