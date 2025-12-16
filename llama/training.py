@@ -156,7 +156,7 @@ def main(
 
             print("loss:", loss)
 
-            accelerator.backward(loss,learning_rate)
+            accelerator.backward(loss,learning_rate=learning_rate)
             # loss.backward()
 
             # Clip gradients to prevent explosion
