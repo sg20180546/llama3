@@ -4,11 +4,15 @@
   },
   "zero_optimization": {
     "stage": 2,
-    "ignore_unused_parameters": false,
-    "offload_optimizer": {
-      "device": "cpu",
-      "pin_memory": true
-    },
+    "ignore_unused_parameters": true,
+        "offload_param": {
+            "device": "cpu",
+            "pin_memory": true
+        },
+        "offload_optimizer": {
+            "device": "cpu",
+            "pin_memory": true
+      },
     "contiguous_gradients": true,
     "overlap_comm": true
   },
