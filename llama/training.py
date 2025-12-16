@@ -149,3 +149,31 @@ def main(
     # Save optimizer state dictionary
     torch.save(optimizer.state_dict(), optimizer_save_path)
     print(f"Optimizer state saved to {optimizer_save_path}")
+
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Simple Llama3 Training Script")
+    parser.add_argument("--ckpt_dir", type=str, required=True, help="Directory containing the model checkpoint and params.json")
+    parser.add_argument("--tokenizer_path", type=str, required=True, help="Path to the tokenizer model file")
+    parser.add_argument("--data_path", type=str, required=True, help="Path to the preprocessed training data file.")         
+    parser.add_argument("--output_dir", type=str, default="checkpoints/finetuned", help="Directory to save the fine-tuned model and optimizer state")
+    parser.add_argument("--batch_size", type=int, default=1, help="Batch size for training")
+    parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
+    parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate")
+    parser.add_argument("--log_interval", type=int, default=1, help="Interval for logging training loss")
+    parser.add_argument("--gradient_accumulation_steps", type=int, default=1, help="Number of steps to accumulate gradients over")
+    
+    args = parser.parse_args()
+    main(
+        ckpt_dir=args.ckpt_dir,
+        tokenizer_path=args.tokenizer_path,
+        output_dir=args.output_dir,
+        data_path=args.data_path,
+        batch_size=args.batch_size,
+        epochs=args.epochs,
+        learning_rate=args.learning_rate,
+        log_interval=args.log_interval,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+    )
