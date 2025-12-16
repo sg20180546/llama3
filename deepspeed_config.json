@@ -18,8 +18,7 @@
     "stage": 3,
     "ignore_unused_parameters": true,
     "offload_optimizer": {
-      "device": "cpu",
-      "pin_memory": true
+      "device": "none"
     },
     "offload_param": {
       "device": "none"
