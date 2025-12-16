@@ -3,7 +3,7 @@
     "enabled": true
   },
   "zero_optimization": {
-    "stage": 3,
+    "stage": 1,
     "ignore_unused_parameters": true,
         "offload_param": {
             "device": "cpu",
@@ -16,5 +16,8 @@
       ,
     "contiguous_gradients": true,
     "overlap_comm": true
-  }
+  },
+  "train_micro_batch_size_per_gpu": 1,
+  "gradient_accumulation_steps": 1,
+  "gradient_clipping": 1.0
 }
