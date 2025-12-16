@@ -15,7 +15,7 @@
     }
   },
   "zero_optimization": {
-    "stage": 3,
+    "stage": 2,
     "ignore_unused_parameters": true,
     "offload_optimizer": {
       "device": "none"
