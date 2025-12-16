@@ -140,7 +140,7 @@ def main(
             # Reshape logits and targets for cross_entropy
             # loss = criterion(logits.view(-1, logits.size(-1)), targets.view(-1))
             # loss=F.cross
-            loss=F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1),ignore_index=tokenizer.pad_id)
+            loss=F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
             
             # model_args.max_seq_len:  2048
             # max_len:  84
