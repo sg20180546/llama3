@@ -179,9 +179,9 @@ class Attention(nn.Module):
         # Attention xq.shape  torch.Size([1, 32, 50, 128])  keys.shape  torch.Size([1, 32, 50, 128])
         #   value.shape  torch.Size([1, 32, 50, 128]) 
         #  scores.shape  torch.Size([1, 32, 50, 50])  output.shape  torch.Size([1, 50, 4096])
-        print("Attention xq.shape ",xq.shape," keys.shape " ,
-              keys.shape," value.shape ",values.shape,
-              " scores.shape ",scores.shape," output.shape ",output.shape)
+        # print("Attention xq.shape ",xq.shape," keys.shape " ,
+        #       keys.shape," value.shape ",values.shape,
+        #       " scores.shape ",scores.shape," output.shape ",output.shape)
         return self.wo(output)
 
 
@@ -213,7 +213,7 @@ class FeedForward(nn.Module):
     def forward(self, x):
         # FeedForward ret.shape  torch.Size([1, 50, 4096])
         ret=  self.w2(F.silu(self.w1(x)) * self.w3(x))
-        print("FeedForward ret.shape ",ret.shape)
+        # print("FeedForward ret.shape ",ret.shape)
         return ret
 
 
@@ -246,7 +246,7 @@ class TransformerBlock(nn.Module):
 
         h = x + self.attention(self.attention_norm(x), start_pos, freqs_cis, mask)
         out = h + self.feed_forward(self.ffn_norm(h))
-        print("TransformerBlock h.shape", h.shape, " out.shape" ,out.shape)
+        # print("TransformerBlock h.shape", h.shape, " out.shape" ,out.shape)
         return out
 
 
@@ -265,8 +265,8 @@ class Transformer(nn.Module):
             self.output = ColumnParallelLinear(params.dim, params.vocab_size, bias=False, init_method=lambda x: x)
         else:
             print("!!!!!!!!!!!!!!!!!!!use_parallel") #here
-            print(params.vocab_size)
-            print(params.dim)
+            print("params.vocab_size ",params.vocab_size)
+            print("params.dim ",params.dim)
             self.tok_embeddings = nn.Embedding(params.vocab_size, params.dim)
             self.output = nn.Linear(params.dim, params.vocab_size, bias=False)
 
@@ -293,19 +293,19 @@ class Transformer(nn.Module):
         # mask.shape  torch.Size([50, 50])
         # h.shape  torch.Size([1, 50, 4096])
         # output.shape  torch.Size([1, 50, 128256])
-        print("seqlen ",seqlen)
-        print("start_pos ",start_pos)
-        print("token.shape ", tokens.shape)
+        # print("seqlen ",seqlen)
+        # print("start_pos ",start_pos)
+        # print("token.shape ", tokens.shape)
         mask = None
         if seqlen > 1:
             mask = torch.full((seqlen, seqlen), float("-inf"), device=tokens.device)
             mask = torch.triu(mask, diagonal=1)
             mask = torch.hstack([torch.zeros((seqlen, start_pos), device=tokens.device), mask]).type_as(h)
-            print("mask.shape ",mask.shape)
+            # print("mask.shape ",mask.shape)
         for layer in self.layers:
             h = layer(h, start_pos, freqs_cis, mask)
         h = self.norm(h)
-        print("h.shape ", h.shape)
+        # print("h.shape ", h.shape)
         output = self.output(h).float()
-        print("output.shape ", output.shape)
+        # print("output.shape ", output.shape)
         return output
