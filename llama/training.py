@@ -60,8 +60,8 @@ def main(
     
     # Instantiate the model
     model = Transformer(model_args)
-    criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_id)
-
+    # criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_id)
+    criterion = nn.CrossEntropyLoss()
     # Load the checkpoint if it exists
     checkpoint_paths = sorted(Path(ckpt_dir).glob("*.pth"))
     if checkpoint_paths:
@@ -162,7 +162,7 @@ def main(
             # loss.backward()
 
             # Clip gradients to prevent explosion
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            # torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
             optimizer.step()
             optimizer.zero_grad()
