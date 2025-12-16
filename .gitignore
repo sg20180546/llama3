@@ -6,7 +6,7 @@ pubmedqa
 checkpoint_dir/*
 # C extensions
 *.so
-
+errorlog_sj
 # Distribution / packaging
 .Python
 build/
