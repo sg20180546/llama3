@@ -56,6 +56,7 @@ def main(
     
     # Instantiate the model
     model = Transformer(model_args)
+    model.gradient_checkpointing_enable()
     # Load the checkpoint if it exists
     checkpoint_paths = sorted(Path(ckpt_dir).glob("*.pth"))
     if checkpoint_paths:
