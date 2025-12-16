@@ -156,8 +156,8 @@ def main(
 
             print("loss:", loss)
 
-            # accelerator.backward(loss)
-            loss.backward()
+            accelerator.backward(loss,learning_rate)
+            # loss.backward()
 
             # Clip gradients to prevent explosion
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
