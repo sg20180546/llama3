@@ -3,7 +3,7 @@
     "enabled": true
   },
   "zero_optimization": {
-    "stage": 2,
+    "stage": 3,
     "ignore_unused_parameters": true,
         "offload_param": {
             "device": "cpu",
