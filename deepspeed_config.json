@@ -1,9 +1,9 @@
 {
-  "fp16": {
+  "bf16": {
     "enabled": true
   },
   "zero_optimization": {
-    "stage": 1,
+    "stage": 3,
     "ignore_unused_parameters": true,
     "contiguous_gradients": true,
     "overlap_comm": true
