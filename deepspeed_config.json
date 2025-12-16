@@ -13,9 +13,8 @@
             "device": "cpu",
             "pin_memory": true
       }
-
-  },
-  "train_micro_batch_size_per_gpu": 1,
-  "gradient_accumulation_steps": 1,
-  "gradient_clipping": 1.0
+      ,
+    "contiguous_gradients": true,
+    "overlap_comm": true
+  }
 }
