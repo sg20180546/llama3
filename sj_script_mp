@@ -1,0 +1,7 @@
+torchrun --nproc_per_node=N llama/training_multigpu.py \
+        --ckpt_dir Meta-Llama-3-8B-Instruct/ \
+        --tokenizer_path Meta-Llama-3-8B-Instruct/tokenizer.model \
+        --data_path pubmeqa_preprocessed.txt \
+        --output_dir checkpoints/llama3-8b-pubmedqa \
+        --batch_size 1 \
+        --epochs 1
