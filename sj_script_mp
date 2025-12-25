@@ -23,7 +23,7 @@ torchrun \
 
 torchrun \
        --nproc_per_node=2 \
-        convert_checkpoint.py \
+        llama/convert_checkpoint.py \
         --load_path Meta-Llama-3-8B-Instruct/consolidated.00.pth \
         --output_dir checkpoints/llama3-8b-sharded \
         --params_path Meta-Llama-3-8B-Instruct/params.json \

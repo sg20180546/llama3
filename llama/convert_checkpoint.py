@@ -86,6 +86,7 @@ def convert_checkpoint(
             shard_size = sharded_param.size(partition_dim)
             start = mp_rank * shard_size
             end = start + shard_size
+            print("partition_dim ",partition_dim, "start ",start,"end",end)
             
             sharded_state_dict[key].copy_(full_param.narrow(partition_dim, start, end))
 
