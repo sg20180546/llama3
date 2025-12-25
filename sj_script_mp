@@ -16,3 +16,25 @@ torchrun \
         --output_dir checkpoints/llama3-8b-pubmedqa-mp \
         --batch_size 1 \
         --model_parallel_size 2
+
+
+//////////
+
+
+torchrun \
+       --nproc_per_node=2 \
+        convert_checkpoint.py \
+        --load_path Meta-Llama-3-8B-Instruct/consolidated.00.pth \
+        --output_dir checkpoints/llama3-8b-sharded \
+        --params_path Meta-Llama-3-8B-Instruct/params.json \
+        --tokenizer_path Meta-Llama-3-8B-Instruct/tokenizer.model \
+        --model_parallel_size 2
+ torchrun \
+       --nproc_per_node=2 \
+        llama/training_multigpu_mp.py \
+        --ckpt_dir checkpoints/llama3-8b-sharded \
+        --tokenizer_path Meta-Llama-3-8B-Instruct/tokenizer.model \
+        --params_path Meta-Llama-3-8B-Instruct/params.json \
+        --data_path pubmeqa_preprocessed.txt \
+        --output_dir checkpoints/llama3-8b-pubmedqa-mp \
+        --batch_size 1
