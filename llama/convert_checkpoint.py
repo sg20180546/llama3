@@ -86,9 +86,9 @@ def convert_checkpoint(
             shard_size = sharded_param.size(partition_dim)
             start = mp_rank * shard_size
             end = start + shard_size
-            print("partition_dim ",partition_dim, "start ",start,"end",end)
+            print("partition_dim ",partition_dim, "start ",start,"end",end, "shard_size", shard_size)
             
-            sharded_state_dict[key].copy_(full_param.narrow(partition_dim, start, end))
+            sharded_state_dict[key].copy_(full_param.narrow(partition_dim, start, shard_size))
 
         elif is_row_parallel:
             print("I am is_row_parallel")
@@ -100,9 +100,8 @@ def convert_checkpoint(
             
             shard_size = sharded_param.size(partition_dim)
             start = mp_rank * shard_size
-            end = start + shard_size
             
-            sharded_state_dict[key].copy_(full_param.narrow(partition_dim, start, end))
+            sharded_state_dict[key].copy_(full_param.narrow(partition_dim, start, shard_size))
             
         else:
             # Not a parallel parameter, just copy it
