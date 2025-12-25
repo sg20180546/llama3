@@ -140,7 +140,7 @@ def main(
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     dataset = PubMedQADataset(data_path, tokenizer, model_args.max_seq_len)
-    sampler = DistributedSampler(dataset, shuffle=True, num_replicas=world_size, rank=dist.get_rank())
+    sampler = DistributedSampler(dataset, shuffle=True, num_replicas=world_size, rank=dist.get_rank(), drop_last=True)
     
     dataloader = DataLoader(
         dataset, 
@@ -168,6 +168,22 @@ def main(
 
             # 2. 정답(targets)에서 패딩이 아닌 부분만 1, 패딩인 부분은 0인 마스크 생성
             mask = (targets != tokenizer.pad_id)
+            local_valid_tokens = mask.sum()
+
+            # 🔥 batch 단위 rank 동기화 (모든 rank가 동일한 판단을 하도록)
+            valid_tokens = torch.tensor(
+                local_valid_tokens.item(),
+                device=device,
+                dtype=torch.int64
+            )
+            dist.all_reduce(valid_tokens, op=dist.ReduceOp.MIN)
+
+            # 모든 rank에서 동일하게 skip
+            if valid_tokens.item() == 0:
+                optimizer.zero_grad(set_to_none=True)
+                if is_main_process():
+                    print(f"[Epoch {epoch+1}] Skipping batch {i} (all pad)")
+                continue
 
             # 3. 마스크를 곱해서 패딩 위치의 Loss를 0으로 만듦
             losses = losses * mask
