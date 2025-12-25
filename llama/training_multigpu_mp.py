@@ -197,7 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", type=str, default="pubmeqa_preprocessed.txt", help="Path to the data file.")
     parser.add_argument("--output_dir", type=str, default="checkpoints/llama3-8b-pubmedqa-mp", help="Directory to save fine-tuned model shards.")
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size PER DATA PARALLEL REPLICA.")
-    parser.add_argument("--epochs", int, default=3, help="Number of training epochs.")
+    parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs.")
     parser.add_argument("--learning_rate", type=float, default=1e-5, help="Learning rate.")
     parser.add_argument("--log_interval", type=int, default=10, help="Interval for logging.")
     parser.add_argument("--model_parallel_size", type=int, default=2, help="Number of GPUs to use for model parallelism.")
