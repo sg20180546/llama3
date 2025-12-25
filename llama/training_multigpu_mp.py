@@ -25,6 +25,7 @@ try:
         get_model_parallel_group,
         model_parallel_is_initialized,
     )
+    from fairscale.nn.model_parallel.cross_entropy import vocab_parallel_cross_entropy # Added this line
     FAIRSCALE_AVAILABLE = True
 except ImportError:
     FAIRSCALE_AVAILABLE = False
@@ -160,7 +161,7 @@ def main(
             inputs, targets = inputs.to(device), targets.to(device)
             
             logits = model(inputs, start_pos=0)
-            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=tokenizer.pad_id)
+            loss = vocab_parallel_cross_entropy(logits, targets, ignore_index=tokenizer.pad_id)
             
             loss.backward()
             optimizer.step()
