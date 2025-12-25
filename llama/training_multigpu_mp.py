@@ -161,8 +161,19 @@ def main(
             inputs, targets = inputs.to(device), targets.to(device)
             
             logits = model(inputs, start_pos=0)
-            loss = vocab_parallel_cross_entropy(logits, targets, ignore_index=tokenizer.pad_id)
-            
+            # loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=tokenizer.pad_id)
+            # loss = vocab_parallel_cross_entropy(logits, targets, ignore_index=tokenizer.pad_id)                                             
+
+            losses = vocab_parallel_cross_entropy(logits, targets)
+
+            # 2. 정답(targets)에서 패딩이 아닌 부분만 1, 패딩인 부분은 0인 마스크 생성
+            mask = (targets != tokenizer.pad_id)
+
+            # 3. 마스크를 곱해서 패딩 위치의 Loss를 0으로 만듦
+            losses = losses * mask
+
+            # 4. 전체 평균 계산 (실제 유효한 토큰 개수로 나누기)
+            loss = losses.sum() / mask.sum()                                                             
             loss.backward()
             optimizer.step()
             optimizer.zero_grad(set_to_none=True)
