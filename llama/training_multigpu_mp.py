@@ -24,6 +24,8 @@ try:
         get_model_parallel_world_size,
         get_model_parallel_group,
         model_parallel_is_initialized,
+        get_data_parallel_world_size,
+        get_data_parallel_rank
     )
     from fairscale.nn.model_parallel.cross_entropy import vocab_parallel_cross_entropy # Added this line
     FAIRSCALE_AVAILABLE = True
@@ -140,8 +142,16 @@ def main(
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     dataset = PubMedQADataset(data_path, tokenizer, model_args.max_seq_len)
-    sampler = DistributedSampler(dataset, shuffle=True, num_replicas=world_size, rank=dist.get_rank(), drop_last=True)
-    
+    # sampler = DistributedSampler(dataset, shuffle=True, num_replicas=world_size, rank=dist.get_rank(), drop_last=True)
+    sampler = DistributedSampler(
+        dataset, 
+        shuffle=True, 
+        num_replicas=get_data_parallel_world_size(), # TP 2개로 모델 1개만 만들었다면 이 값은 1이 됩니다.
+        rank=get_data_parallel_rank(),               # TP 그룹 내의 모든 rank는 여기서 동일한 0을 가집니다.
+        drop_last=True
+    )
+    print("get_data_parallel_world_size ",get_data_parallel_world_size())
+    print("get_data_parallel_rank ", get_data_parallel_rank())
     dataloader = DataLoader(
         dataset, 
         batch_size=batch_size, 
