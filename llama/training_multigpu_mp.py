@@ -137,7 +137,6 @@ def main(
         print(f"Warning (Rank {dist.get_rank()}): No model shard found at {shard_path}. Training from scratch.")
     
     model.to(device)
-    model = DDP(module=model, device_ids=[dist.get_rank()])
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     dataset = PubMedQADataset(data_path, tokenizer, model_args.max_seq_len)
@@ -207,13 +206,13 @@ def main(
         if is_main_process():
             print(f"Epoch {epoch+1} Average Loss: {avg_loss:.4f}")
 
-    if mp_rank == 0:
-        print(f"---- Saving Model Shard on Global Rank {dist.get_rank()} ----")
-        os.makedirs(output_dir, exist_ok=True)
-        shard_name = f"llama3_pubmedqa_mp_shard_rank_{mp_rank:02d}.pth"
-        model_save_path = os.path.join(output_dir, shard_name)
-        torch.save(model.state_dict(), model_save_path)
-        print(f"Model shard saved to {model_save_path}")
+    # if mp_rank == 0:
+    print(f"---- Saving Model Shard on Global Rank {dist.get_rank()} ----")
+    os.makedirs(output_dir, exist_ok=True)
+    shard_name = f"llama3_pubmedqa_mp_shard_rank_{mp_rank:02d}.pth"
+    model_save_path = os.path.join(output_dir, shard_name)
+    torch.save(model.state_dict(), model_save_path)
+    print(f"Model shard saved to {model_save_path}")
 
     cleanup()
 
