@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.distributed import DistributedSampler
 import torch.distributed as dist
-
+from torch.nn.parallel import DistributedDataParallel as DDP
 # --- Fairscale specific imports ---
 try:
     from fairscale.nn.model_parallel.initialize import (
@@ -137,6 +137,7 @@ def main(
         print(f"Warning (Rank {dist.get_rank()}): No model shard found at {shard_path}. Training from scratch.")
     
     model.to(device)
+    model = DistributedDataParallel(module=model, device_ids=[dist.get_rank()])
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     dataset = PubMedQADataset(data_path, tokenizer, model_args.max_seq_len)
