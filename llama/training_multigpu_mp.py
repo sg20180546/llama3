@@ -104,6 +104,8 @@ def main(
     log_interval: int = 10,
     model_parallel_size: int = 2,
 ):
+    start_time = time.time()
+
     """
     Model Parallel (Tensor Parallel) training script using Fairscale.
     """
@@ -158,7 +160,8 @@ def main(
         sampler=sampler, 
         collate_fn=lambda batch: collate_fn(batch, tokenizer.pad_id)
     )
-         
+    print(f"Model and tokenizer loaded in {time.time() - start_time:.2f}s")
+
     for epoch in range(epochs):
         sampler.set_epoch(epoch)
         model.train()
@@ -223,6 +226,7 @@ def main(
     model_save_path = os.path.join(output_dir, shard_name)
     torch.save(model.state_dict(), model_save_path)
     print(f"Model shard saved to {model_save_path}")
+    print(f"Train Exit in {time.time() - start_time:.2f}s")
 
     cleanup()
 
